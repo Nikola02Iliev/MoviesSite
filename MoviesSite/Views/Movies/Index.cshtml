@@ -1,0 +1,74 @@
+﻿@model MoviesSite.Paginator.PaginatedList<MoviesSite.VMs.Movies.ListMovieVM>
+
+@{
+    ViewData["Title"] = "Movies";
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    var currentSort = ViewBag.CurrentSort as string;
+    var currentSearch = ViewBag.CurrentSearch as string;
+}
+
+<div class="container mt-5">
+    @if (!Model.Any())
+    {
+        <div class="row flex-grow-1">
+            <div class="col-12 text-center">
+                <h1>No movies yet...</h1>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="py-3 d-flex justify-content-center">
+            <form asp-action="Index" method="get" class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-outline-success dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="descendingByDatePublished">Descending by date published</a></li>
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="ascendingByDatePublished">Ascending by date published</a></li>
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="descendingByYearReleased">Descending by year released</a></li>
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="ascendingByYearReleased">Ascending by year released</a></li>
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="descendingByAverageRating">Descending by average rating</a></li>
+                        <li><a class="dropdown-item" asp-action="Index" asp-route-sortValue="ascendingByAverageRating">Ascending by average rating</a></li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var movie in Model)
+            {
+                <div class="col mb-4">
+                    <a asp-action="Details" asp-route-id="@movie.MovieId" class="text-reset text-decoration-none">
+                        <div class="card h-100 shadow-sm border-0">
+                            <img src="~/@movie.ImagePath" class="card-img-top img-fluid w-100" style="height:300px; object-fit:contain;" alt="@movie.MovieName" />
+                            <div class="card-body">
+                                <h5 class="card-title">@movie.MovieName</h5>
+                                <p class="card-text"><small class="text-muted">Year Released: @movie.YearReleased</small></p>
+                                <p class="card-text"><small class="text-muted">Published by: @movie.User?.Email</small></p>
+                                <p class="card-text"><small class="text-muted">Published at: @movie.GetFormattedDatePublished()</small></p>
+                                <p class="card-text"><small class="text-muted">Rating: @movie.AverageRating/5</small></p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item @prevDisabled">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex - 1)" asp-route-sortValue="@currentSort" asp-route-searchValue="@currentSearch" tabindex="-1" aria-disabled="@(!Model.HasPreviousPage)">Previous</a>
+                    </li>
+                    <li class="page-item disabled"><span class="page-link">Page @Model.PageIndex of @Model.TotalPages</span></li>
+                    <li class="page-item @nextDisabled">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex + 1)" asp-route-sortValue="@currentSort" asp-route-searchValue="@currentSearch" aria-disabled="@(!Model.HasNextPage)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
